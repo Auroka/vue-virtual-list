@@ -1,0 +1,101 @@
+<!--
+ * @Description: 
+ * @Author: lxd
+ * @Date: 2021-02-01 11:42:56
+ * @LastEditors: lxd
+ * @LastEditTime: 2021-02-01 15:15:44
+-->
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Title</title>
+    <style>
+      body {
+        margin: 0;
+      }
+      .list-wrap {
+        position: relative;
+        width: 100vw;
+        height: 100vh;
+        overflow-y: auto;
+      }
+      .list {
+        position: absolute;
+        top: 0;
+        left: 0;
+        left: 20px;
+        right: 20px;
+        padding: 0;
+        margin: 0;
+      }
+      li {
+        padding: 10px;
+        list-style: none;
+      }
+      li > div {
+        height: 60px;
+        line-height: 60px;
+        background-color: #f0f0f0;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="app">
+      <div class="list-wrap" ref="listWrap" @scroll="scrollListener">
+        <div class="scroll-bar" ref="scrollBar"></div>
+        <ul class="list" ref="list">
+          <li v-for="val in showList" :key="val"><div>{{val}}</div></li>
+        </ul>
+      </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/vue"></script>
+    <script>
+      new Vue({
+        el: '#app',
+        data() {
+          return {
+            list: [], //超长的显示数据
+            itemHeight: 80, //每一列的高度
+            showNum: 0, //显示几条数据
+            start: 0, //滚动过程显示的开始索引
+            end: 0 //滚动过程显示的结束索引
+          }
+        },
+        computed: {
+          //显示的数组，用计算属性计算
+          showList() {
+            return this.list.slice(this.start, this.end)
+          }
+        },
+        mounted() {
+          // 计算一页显示的数量
+          this.showNum = Math.ceil(
+            this.$refs.listWrap.clientHeight / this.itemHeight
+          )
+          this.start = 0
+          this.end = this.start + this.showNum
+          //构造一个超长列表
+          for (let i = 1; i < 100000; i++) {
+            this.list.push('列表' + i)
+          }
+          //计算总的数据需要的高度，构造滚动条高度
+          this.$refs.scrollBar.style.height =
+            this.itemHeight * this.list.length + 'px'
+        },
+        methods: {
+          scrollListener() {
+            //获取滚动高度
+            let scrollTop = this.$refs.listWrap.scrollTop
+            //开始的数组索引
+            this.start = Math.floor(scrollTop / this.itemHeight)
+            //结束索引
+            this.end = this.start + this.showNum
+            //绝对定位对相对定位的偏移量
+            this.$refs.list.style.top = this.start * this.itemHeight + 'px'
+          }
+        }
+      })
+    </script>
+  </body>
+</html>
